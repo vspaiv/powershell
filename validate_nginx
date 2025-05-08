@@ -1,0 +1,13 @@
+# validate-nginx.ps1
+# Script  para TESTE da config do nginx    onde ira rodar o comando nginx -T reload em cada pod a cada 120 segundos
+$namespace = "global-cache"
+ 
+kubectl get pods -n $namespace --no-headers |
+    Where-Object { $_ -match "edge-canary" } |
+    Sort-Object |
+    ForEach-Object {
+        $pod = ($_ -split "\s+")[0]
+        Write-Host "Recarregando nginx no pod: $pod"
+        kubectl exec -n $namespace $pod -- nginx -t
+        Start-Sleep -Seconds 5
+    }
